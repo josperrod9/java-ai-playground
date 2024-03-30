@@ -88,6 +88,7 @@ public class FlightService {
             throw new IllegalArgumentException("Booking cannot be cancelled within 48 hours of the start date.");
         }
         booking.setBookingStatus(BookingStatus.CANCELLED);
+        System.out.println("Booking " + bookingNumber + " cancelled");
     }
 
     private BookingDetails toBookingDetails(Booking booking){

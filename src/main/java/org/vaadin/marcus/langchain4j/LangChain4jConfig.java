@@ -9,9 +9,9 @@ import dev.langchain4j.model.Tokenizer;
 import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.model.embedding.AllMiniLmL6V2EmbeddingModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.openai.OpenAiChatModelName;
-import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
-import dev.langchain4j.model.openai.OpenAiTokenizer;
+import dev.langchain4j.model.embedding.HuggingFaceTokenizer;
+import dev.langchain4j.model.localai.LocalAiStreamingChatModel;
+import dev.langchain4j.model.mistralai.MistralAiChatModelName;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
@@ -26,13 +26,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
 import java.io.IOException;
+import java.time.Duration;
 
 import static dev.langchain4j.data.document.loader.FileSystemDocumentLoader.loadDocument;
 
 @Configuration
 public class LangChain4jConfig {
 
-    private static final String MODEL_NAME = OpenAiChatModelName.GPT_3_5_TURBO.toString();
+    private static final String MODEL_NAME = MistralAiChatModelName.OPEN_MISTRAL_7B.toString();
 
     @Bean
     EmbeddingModel embeddingModel() {
@@ -46,7 +47,7 @@ public class LangChain4jConfig {
 
     @Bean
     Tokenizer tokenizer() {
-        return new OpenAiTokenizer(MODEL_NAME);
+        return new HuggingFaceTokenizer();
     }
 
 
@@ -76,10 +77,12 @@ public class LangChain4jConfig {
     }
 
     @Bean
-    StreamingChatLanguageModel chatLanguageModel(@Value("${openai.api.key}") String apiKey) {
-        return OpenAiStreamingChatModel.builder()
-                .apiKey(apiKey)
+    StreamingChatLanguageModel chatLanguageModel(@Value("${model.url}") String url) {
+        return LocalAiStreamingChatModel.builder()
+                .baseUrl(url)
                 .modelName(MODEL_NAME)
+                .temperature(0.2)
+                .timeout(Duration.ofMinutes(5))
                 .build();
     }
 
@@ -110,7 +113,7 @@ public class LangChain4jConfig {
                 .streamingChatLanguageModel(chatLanguageModel)
                 .chatMemoryProvider(chatId -> TokenWindowChatMemory.builder()
                         .id(chatId)
-                        .maxTokens(1000, tokenizer)
+                        .maxTokens(2000, tokenizer)
                         .build())
                 .contentRetriever(retriever)
                 .tools(tools)

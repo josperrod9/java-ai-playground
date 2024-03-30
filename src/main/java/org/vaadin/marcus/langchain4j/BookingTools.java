@@ -14,17 +14,17 @@ public class BookingTools {
         this.carRentalService = carRentalService;
     }
 
-    @Tool
+    @Tool(name = "get the booking details given the booking number and the user's first and last name")
     public BookingDetails getBookingDetails(String bookingNumber, String firstName, String lastName) {
         return carRentalService.getBookingDetails(bookingNumber, firstName, lastName);
     }
 
-    @Tool
+    @Tool(name = "book a flight given the user's first and last name, the date, and the from and to airports")
     public void changeBooking(String bookingNumber, String firstName, String lastName, String date, String from, String to) {
         carRentalService.changeBooking(bookingNumber, firstName, lastName, date, from, to);
     }
 
-    @Tool
+    @Tool(name = "cancel the booking given the booking number and the user's first and last name")
     public void cancelBooking(String bookingNumber, String firstName, String lastName) {
         carRentalService.cancelBooking(bookingNumber, firstName, lastName);
     }
